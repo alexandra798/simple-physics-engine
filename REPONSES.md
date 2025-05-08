@@ -84,3 +84,82 @@ J'aurais introduit les opérateurs suivants:
 9. `operator~` (unaire, remplaçant unitaire())
 
 Ces opérateurs faciliteraient considérablement l'utilisation de la classe Vecteur en permettant une syntaxe plus naturelle et plus proche des notations mathématiques conventionnelles.
+
+
+
+## [Question P8.1] 
+
+La méthode `dessine_sur()` est, du point de vue de la programmation orientée objet, une méthode virtuelle pure. Elle est déclarée dans la classe abstraite `Dessinable` et doit être implémentée par toutes les classes dérivées. 
+
+Cette méthode est un exemple parfait du principe de polymorphisme, permettant à différents objets d'être "dessinés" de manière spécifique tout en partageant une interface commune. C'est une application du patron de conception "Visiteur" (Visitor pattern), où la méthode `dessine_sur()` accepte un visiteur (`SupportADessin`) qui applique une opération appropriée selon le type concret de l'objet.
+
+Le fait que cette méthode doive être implémentée de manière identique dans toutes les classes dérivées, avec un appel à `support.dessine(*this)`, est une solution technique pour contourner l'absence de "double dispatch" natif en C++.
+
+## [Question P8.2] 
+
+Pour les classes contenant des pointeurs, il faut faire attention aux aspects suivants :
+
+1. **La gestion de mémoire** : Les pointeurs bruts ne gèrent pas automatiquement la mémoire, ce qui peut entraîner des fuites de mémoire ou des pointeurs pendants.
+
+2. **La propriété des ressources** : Il faut clairement définir qui est responsable de la création et de la destruction des objets pointés.
+
+3. **La règle des trois/cinq** : Si une classe nécessite un destructeur personnalisé, un constructeur de copie ou un opérateur d'affectation, elle a généralement besoin des trois. Avec C++11, cette règle s'étend à cinq avec les sémantiques de déplacement.
+
+Les solutions possibles sont :
+
+1. **Utiliser des pointeurs intelligents** :
+   - `std::shared_ptr` pour la propriété partagée
+   - `std::unique_ptr` pour la propriété exclusive
+   - `std::weak_ptr` pour éviter les références circulaires
+
+2. **Copie profonde** : Implémenter des constructeurs de copie et des opérateurs d'affectation qui créent de nouvelles copies des ressources.
+
+3. **Sémantique de déplacement** : Utiliser des constructeurs de déplacement et des opérateurs d'affectation par déplacement pour améliorer l'efficacité.
+
+4. **Suivre le principe RAII** (Resource Acquisition Is Initialization) : S'assurer que les ressources sont acquises dans le constructeur et libérées dans le destructeur.
+
+Dans notre système de simulation physique, l'utilisation de `std::shared_ptr` est particulièrement appropriée car plusieurs objets peuvent partager des références à des contraintes ou des champs de force communs.
+
+## [Question P8.3] 
+
+La classe `Systeme` est conçue pour représenter l'ensemble du système physique à simuler. Voici mon explication de sa conception :
+
+**Attributs** :
+- `std::vector<std::shared_ptr<ObjetPhysique>> objets` : Collection des objets physiques du système
+- `std::vector<std::shared_ptr<ChampForces>> champs` : Collection des champs de forces
+- `std::vector<std::shared_ptr<Contrainte>> contraintes` : Collection des contraintes
+- `std::shared_ptr<Integrateur> integrateur` : L'intégrateur utilisé pour faire évoluer le système
+- `double temps` : Le temps actuel du système
+
+**Interface** :
+1. **Constructeurs** :
+   - Constructeur par défaut initialisant un système vide avec un intégrateur d'Euler-Cromer
+   - Constructeur avec un intégrateur spécifié
+
+2. **Méthodes d'ajout de composants** :
+   - `ajoute_objet()` : Ajoute un objet physique au système
+   - `ajoute_contrainte()` : Ajoute une contrainte au système
+   - `ajoute_champ()` : Ajoute un champ de forces au système
+
+3. **Méthodes d'application** :
+   - `applique_contrainte()` : Applique une contrainte spécifique à un objet spécifique
+   - `applique_champ()` : Applique un champ de forces spécifique à un objet spécifique
+
+4. **Méthode d'évolution** :
+   - `evolue(double dt)` : Fait évoluer le système d'un pas de temps dt
+
+5. **Accesseurs** :
+   - Méthodes pour obtenir les objets, champs, contraintes et le temps du système
+
+6. **Méthode d'affichage** :
+   - `dessine_sur()` : Héritée de `Dessinable`, permet d'afficher le système
+   - Surcharge de l'opérateur `<<` pour afficher toutes les informations du système
+
+**Choix de conception** :
+- J'ai choisi d'utiliser des `std::shared_ptr` pour gérer les objets, contraintes et champs de forces, ce qui permet un partage sécurisé des ressources.
+- La responsabilité du temps est confiée à la classe `Systeme`, qui incrémente son propre temps lors de chaque évolution.
+- La séparation claire entre la simulation physique (via `evolue()`) et l'affichage (via `dessine_sur()`) permet de respecter le principe de séparation des préoccupations.
+- L'intégrateur est un composant interne du système, ce qui permet d'utiliser différentes méthodes d'intégration sans modifier le reste du code.
+
+Cette conception modulaire permet une grande flexibilité et extensibilité du système, tout en maintenant une interface cohérente et facile à utiliser.
+

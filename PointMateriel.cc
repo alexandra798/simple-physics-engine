@@ -1,14 +1,15 @@
 #include "PointMateriel.h"
 #include "Vecteur.h"
+#include "SupportADessin.h"
 #include <iostream>
 #include <stdexcept>
 #include <memory>
 
-// Constructeur par défaut
+// 构造函数
 PointMateriel::PointMateriel()
     : ObjetPhysique() {}
 
-// Constructeur avec paramètres
+// 带参数的构造函数
 PointMateriel::PointMateriel(const Vecteur& position, const Vecteur& vitesse, 
                            double masse, 
                            std::shared_ptr<ChampForces> champ,
@@ -16,30 +17,29 @@ PointMateriel::PointMateriel(const Vecteur& position, const Vecteur& vitesse,
     : ObjetPhysique(position, vitesse, masse, champ, contrainte) {
     
     if (!(position.memeDimension(vitesse))) {
-        throw std::runtime_error("Les dimensions de la position et de la vitesse doivent être égales");
+        throw std::runtime_error("位置和速度的维度必须相同");
     }
     
     if (masse <= 0) {
-        throw std::runtime_error("La masse doit être positive");
+        throw std::runtime_error("质量必须为正值");
     }
 }
 
-
-
-// Calcule l'équation d'évolution du point matériel à un instant donné
+// 计算物质点在给定时间的演化方程
 Vecteur PointMateriel::evolution(double temps) const {
-    // Seconde loi de Newton: a = F/m
+    // 牛顿第二定律：a = F/m
     return force(temps) * (1.0 / getMasse());
 }
 
-// Surcharge de l'opérateur << pour afficher les informations du point matériel
+
+
+
+// 输出运算符重载
 std::ostream& operator<<(std::ostream& os, const PointMateriel& pm) {
-    os << pm.getMasse() << " # masse" << std::endl;
-    os << pm.position() << " # position" << std::endl;
-    os << pm.vitesse() << " # vitesse" << std::endl;
+    os << static_cast<const ObjetPhysique&>(pm) << std::endl;
     
-    // Calculer et afficher la force à l'instant t=0
-    os << pm.force(0) << " # force";
+    // 计算并显示t=0时的力
+    os << pm.force(0) << " # 力";
     
     return os;
 }

@@ -4,11 +4,11 @@
 #include "SupportADessin.h"
 #include <memory>
 
-class PointMateriel : public ObjetPhysique, public Dessinable {
+class ChargeElectrique : public ObjetPhysique, public Dessinable {
 public:
     // 构造函数
-    PointMateriel();
-    PointMateriel(const Vecteur& position, const Vecteur& vitesse, 
+    ChargeElectrique();
+    ChargeElectrique(const Vecteur& position, const Vecteur& vitesse, 
                  double masse, 
                  std::shared_ptr<ChampForces> champ = nullptr,
                  std::shared_ptr<Contrainte> contrainte = nullptr);
@@ -21,5 +21,5 @@ public:
         support.dessine(*this); }
     
     // 输出运算符重载
-    friend std::ostream& operator<<(std::ostream& os, const PointMateriel& pm);
+    friend std::ostream& operator<<(std::ostream& os, const ChargeElectrique& pm);
 };

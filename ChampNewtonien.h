@@ -3,7 +3,7 @@
 
 class ChampNewtonien : public ForceCentrale {
 private:
-    const double G = 6.67430e-11;  // 万有引力常数，单位：m^3 kg^-1 s^-2
+    static constexpr double G = 6.67430e-11;  // 万有引力常数，单位：m^3 kg^-1 s^-2
     
 public:
     // 构造函数
