@@ -1,25 +1,25 @@
 #pragma once
 #include "ObjetPhysique.h"
-#include "Dessinable.h"
-#include "SupportADessin.h"
 #include <memory>
 
-class PointMateriel : public ObjetPhysique, public Dessinable {
+class PointMateriel : public ObjetPhysique {
 public:
-    // 构造函数
+    // Constructors
     PointMateriel();
-    PointMateriel(const Vecteur& position, const Vecteur& vitesse, 
-                 double masse, 
-                 std::shared_ptr<ChampForces> champ = nullptr,
-                 std::shared_ptr<Contrainte> contrainte = nullptr);
-    
-    // 计算运动方程（实现ObjetMobile中的虚函数）
-    virtual Vecteur evolution(double temps) const override;
-    
-    // 实现Dessinable的绘制方法
-    virtual void dessine_sur(SupportADessin& support) override {
-        support.dessine(*this); }
-    
-    // 输出运算符重载
-    friend std::ostream& operator<<(std::ostream& os, const PointMateriel& pm);
+    PointMateriel(const Vecteur& position, const Vecteur& vitesse, double masse,
+                  std::shared_ptr<ChampForces> champ = nullptr,
+                  std::shared_ptr<Contrainte> contrainte = nullptr);
+
+    // Destructor
+    virtual ~PointMateriel() = default;
+
+
+    void setMasse(double m);
+
+    Vecteur evolution(double temps) const override;
+
+    // Output operator
+    friend std::ostream& operator<<(std::ostream& os, const PointMateriel& point);
+private:
+    double masse;
 };

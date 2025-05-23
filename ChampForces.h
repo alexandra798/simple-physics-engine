@@ -1,5 +1,6 @@
 #pragma once
 #include "Vecteur.h"
+#include <stdexcept>
 
 // 前向声明以避免循环引用
 class ObjetPhysique;
@@ -10,7 +11,10 @@ public:
     ChampForces() = default;
     virtual ~ChampForces() = default;
     
+
+    
     // 纯虚函数，计算作用于物理对象的力
     virtual Vecteur force(const ObjetPhysique& objet, double temps) const = 0;
+
 }; 
 

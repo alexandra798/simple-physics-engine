@@ -1,44 +1,45 @@
-
-
+// IntegrateurRungeKutta4.cc
 #include "IntegrateurRungeKutta4.h"
 
-// Constructeur - appelle le constructeur de la classe mère
-IntegrateurRungeKutta4::IntegrateurRungeKutta4(double dt)
-    : Integrateur(dt) {}
-
-// Méthode d'intégration selon l'algorithme de Runge-Kutta d'ordre 4
-void IntegrateurRungeKutta4::integre(ObjetMobile& objet, double temps) const {
-    // Sauvegarde des états initiaux
-    Vecteur pos_initiale = objet.getParametres();
-    Vecteur vit_initiale = objet.getDeriveeParametres();
+void IntegrateurRungeKutta4::integre(ObjetMobile& objet, double t, double dt) const {
+    // 1. Récupérer les paramètres actuels
+    Vecteur parametres_initiaux = objet.getParametres();
+    Vecteur derivee_initiale = objet.getDeriveeParametres();
     
-    // Étape 1: Calcul de k1 (utilisation des valeurs initiales)
-    Vecteur k1_vit = objet.evolution(temps) * pas_temps;
-    Vecteur k1_pos = vit_initiale * pas_temps;
+    // 2. Calcul des coefficients k1, k2, k3, k4 pour la méthode RK4
     
-    // Étape 2: Calcul de k2 (utilisation de k1 à mi-pas)
-    objet.setParametres(pos_initiale + k1_pos * 0.5);
-    objet.setDeriveeParametres(vit_initiale + k1_vit * 0.5);
-    Vecteur k2_vit = objet.evolution(temps + pas_temps * 0.5) * pas_temps;
-    Vecteur k2_pos = (vit_initiale + k1_vit * 0.5) * pas_temps;
+    // k1 : évaluation au point initial
+    Vecteur k1 = objet.evolution(t);
     
-    // Étape 3: Calcul de k3 (utilisation de k2 à mi-pas)
-    objet.setParametres(pos_initiale + k2_pos * 0.5);
-    objet.setDeriveeParametres(vit_initiale + k2_vit * 0.5);
-    Vecteur k3_vit = objet.evolution(temps + pas_temps * 0.5) * pas_temps;
-    Vecteur k3_pos = (vit_initiale + k2_vit * 0.5) * pas_temps;
+    // Calcul d'un état intermédiaire pour k2 (t + dt/2, y + dt/2 * k1)
+    objet.setDeriveeParametres(derivee_initiale + k1 * (dt/2));
+    objet.setParametres(parametres_initiaux + derivee_initiale * (dt/2));
     
-    // Étape 4: Calcul de k4 (utilisation de k3 à pas complet)
-    objet.setParametres(pos_initiale + k3_pos);
-    objet.setDeriveeParametres(vit_initiale + k3_vit);
-    Vecteur k4_vit = objet.evolution(temps + pas_temps) * pas_temps;
-    Vecteur k4_pos = (vit_initiale + k3_vit) * pas_temps;
+    // k2 : évaluation au point intermédiaire
+    Vecteur k2 = objet.evolution(t + dt/2);
     
-    // Calcul de la nouvelle position et vitesse en utilisant la moyenne pondérée
-    Vecteur nouvelle_position = pos_initiale + (k1_pos + k2_pos * 2.0 + k3_pos * 2.0 + k4_pos) * (1.0 / 6.0);
-    Vecteur nouvelle_vitesse = vit_initiale + (k1_vit + k2_vit * 2.0 + k3_vit * 2.0 + k4_vit) * (1.0 / 6.0);
+    // Calcul d'un état intermédiaire pour k3 (t + dt/2, y + dt/2 * k2)
+    objet.setDeriveeParametres(derivee_initiale + k2 * (dt/2));
+    objet.setParametres(parametres_initiaux + derivee_initiale * (dt/2) + k1 * (dt*dt/4));
     
-    // Mise à jour des paramètres de l'objet
-    objet.setParametres(nouvelle_position);
-    objet.setDeriveeParametres(nouvelle_vitesse);
+    // k3 : évaluation au second point intermédiaire
+    Vecteur k3 = objet.evolution(t + dt/2);
+    
+    // Calcul d'un état intermédiaire pour k4 (t + dt, y + dt * k3)
+    objet.setDeriveeParametres(derivee_initiale + k3 * dt);
+    objet.setParametres(parametres_initiaux + derivee_initiale * dt + k2 * (dt*dt/2));
+    
+    // k4 : évaluation au point final
+    Vecteur k4 = objet.evolution(t + dt);
+    
+    // 3. Combinaison des coefficients pour obtenir la nouvelle dérivée
+    Vecteur nouvelle_derivee = derivee_initiale + (k1 + k2*2 + k3*2 + k4) * (dt/6);
+    
+    // 4. Calcul des nouveaux paramètres
+    Vecteur nouveaux_parametres = parametres_initiaux + 
+                                 (derivee_initiale + nouvelle_derivee) * (dt/2);
+    
+    // 5. Mise à jour de l'objet
+    objet.setParametres(nouveaux_parametres);
+    objet.setDeriveeParametres(nouvelle_derivee);
 }

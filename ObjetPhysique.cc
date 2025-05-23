@@ -1,24 +1,23 @@
 #include "ObjetPhysique.h"
 #include <stdexcept>
 
-// 默认构造函数
-ObjetPhysique::ObjetPhysique()
-    : ObjetMobile(), masse(1.0), champ(nullptr), contrainte(nullptr) {}
+#include <iostream>
 
-// 带参数的构造函数
+// 构造函数实现
+ObjetPhysique::ObjetPhysique()
+    : ObjetMobile(), masse(1.0) {}
+
 ObjetPhysique::ObjetPhysique(const Vecteur& param, const Vecteur& deriv, double m,
                            std::shared_ptr<ChampForces> ch,
                            std::shared_ptr<Contrainte> con)
-    : ObjetMobile(param, deriv), masse(m), champ(ch), contrainte(con) {
-    if (m <= 0) {
+    : ObjetMobile(param, deriv), champ(ch), contrainte(con), masse(m) {
+    if (masse <= 0) {
         throw std::runtime_error("质量必须为正值");
     }
 }
 
 // 访问器
-double ObjetPhysique::getMasse() const {
-    return masse;
-}
+
 
 const ChampForces& ObjetPhysique::getChampForces() const {
     if (!champ) {
@@ -35,12 +34,7 @@ const Contrainte& ObjetPhysique::getContrainte() const {
 }
 
 // 修改器
-void ObjetPhysique::setMasse(double m) {
-    if (m <= 0) {
-        throw std::runtime_error("质量必须为正值");
-    }
-    masse = m;
-}
+
 
 void ObjetPhysique::setChampForces(std::shared_ptr<ChampForces> ch) {
     champ = ch;
@@ -95,4 +89,9 @@ std::ostream& operator<<(std::ostream& os, const ObjetPhysique& obj) {
     os << obj.position() << " # 位置" << std::endl;
     os << obj.vitesse() << " # 速度";
     return os;
+}
+
+// 访问器实现
+double ObjetPhysique::getMasse() const {
+    return masse;
 } 

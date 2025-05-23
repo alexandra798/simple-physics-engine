@@ -5,6 +5,8 @@
 #include <memory>
 
 class ChargeElectrique : public ObjetPhysique, public Dessinable {
+private:
+    double charge;
 public:
     // 构造函数
     ChargeElectrique();
@@ -12,6 +14,12 @@ public:
                  double masse, 
                  std::shared_ptr<ChampForces> champ = nullptr,
                  std::shared_ptr<Contrainte> contrainte = nullptr);
+
+    // 获取电荷量
+    double getCharge() const;
+    
+    // 设置电荷量
+    void setCharge(double q);
     
     // 计算运动方程（实现ObjetMobile中的虚函数）
     virtual Vecteur evolution(double temps) const override;

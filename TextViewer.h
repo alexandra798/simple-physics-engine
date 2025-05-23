@@ -10,6 +10,8 @@ private:
     
 public:
 
+    // 构造函数
+    TextViewer(std::ostream& out = std::cout) : sortie(out) {}
     
     // 析构函数
     virtual ~TextViewer() = default;
@@ -17,4 +19,5 @@ public:
     // 实现绘制方法
     virtual void dessine(const PointMateriel& point) override;
     virtual void dessine(const Systeme& systeme) override;
+    virtual void dessine(const ChargeElectrique& charge) override;
 };

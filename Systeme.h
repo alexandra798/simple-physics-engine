@@ -8,30 +8,34 @@
 #include <vector>
 #include <iostream>
 
-//
-
+// 更新后的Systeme类，包含了之前Contenu类的功能
 class Systeme : public Dessinable {
 private:
-    // 系统组件
+    // 物理系统组件
     std::vector<std::shared_ptr<ObjetPhysique>> objets;
     std::vector<std::shared_ptr<ChampForces>> champs;
     std::vector<std::shared_ptr<Contrainte>> contraintes;
     std::shared_ptr<Integrateur> integrateur;
     
+
     double temps;
     
 public:
     // 构造函数
     Systeme();
     Systeme(std::shared_ptr<Integrateur> integ);
+    //...
     
     // 析构函数
     virtual ~Systeme() = default;
     
-    // 添加组件的方法
+    // 添加物理组件的方法
     void ajoute_objet(std::shared_ptr<ObjetPhysique> objet);
     void ajoute_contrainte(std::shared_ptr<Contrainte> contrainte);
     void ajoute_champ(std::shared_ptr<ChampForces> champ);
+    
+
+
     
     // 设置积分器
     void set_integrateur(std::shared_ptr<Integrateur> integ);
@@ -50,6 +54,7 @@ public:
     const std::vector<std::shared_ptr<ObjetPhysique>>& get_objets() const;
     const std::vector<std::shared_ptr<ChampForces>>& get_champs() const;
     const std::vector<std::shared_ptr<Contrainte>>& get_contraintes() const;
+
     
     // 从Dessinable继承的方法
     virtual void dessine_sur(SupportADessin& support) override;

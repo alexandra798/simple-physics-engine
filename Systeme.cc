@@ -39,6 +39,14 @@ void Systeme::ajoute_champ(std::shared_ptr<ChampForces> champ) {
     champs.push_back(champ);
 }
 
+// 添加Machin对象（从Contenu类合并而来）
+void Systeme::ajoute_machin(std::shared_ptr<Machin> machin) {
+    if (!machin) {
+        throw std::runtime_error("无法添加空Machin对象");
+    }
+    machines.push_back(machin);
+}
+
 // 设置积分器
 void Systeme::set_integrateur(std::shared_ptr<Integrateur> integ) {
     if (!integ) {
@@ -80,9 +88,14 @@ void Systeme::evolue(double dt) {
         throw std::runtime_error("未设置积分器");
     }
     
-    // 为系统中的每个对象应用积分器
+    // 为系统中的每个物理对象应用积分器
     for (auto& objet : objets) {
         integrateur->integre(*objet, temps);
+    }
+    
+    // 演化所有Machin对象
+    for (auto& machin : machines) {
+        machin->evolue(dt);
     }
     
     // 更新系统时间
@@ -107,9 +120,19 @@ const std::vector<std::shared_ptr<Contrainte>>& Systeme::get_contraintes() const
     return contraintes;
 }
 
+const std::vector<std::shared_ptr<Machin>>& Systeme::get_machines() const {
+    return machines;
+}
+
 // 绘制方法
 void Systeme::dessine_sur(SupportADessin& support) {
+    // 首先绘制物理系统
     support.dessine(*this);
+    
+    // 然后绘制所有Machin对象
+    for (auto& machin : machines) {
+        machin->dessine_sur(support);
+    }
 }
 
 // 输出运算符重载
@@ -122,7 +145,7 @@ std::ostream& operator<<(std::ostream& os, const Systeme& systeme) {
         if (auto point = std::dynamic_pointer_cast<PointMateriel>(systeme.objets[i])) {
             os << "Point Matériel :" << std::endl;
         } else {
-            os << "P:" << std::endl;
+            os << "Objet Physique:" << std::endl;
         }
         
         os << *systeme.objets[i] << std::endl;
@@ -156,6 +179,21 @@ std::ostream& operator<<(std::ostream& os, const Systeme& systeme) {
             os << "contrainte Libre";
         } else {
             os << "contrainte";
+        }
+        os << std::endl;
+    }
+    
+    // 新增：输出Machin对象信息
+    for (size_t i = 0; i < systeme.machines.size(); ++i) {
+        os << "Machin no " << (i + 1) << " : ";
+        if (dynamic_cast<const Bloc*>(systeme.machines[i].get())) {
+            os << "Bloc";
+        } else if (dynamic_cast<const Moucheron*>(systeme.machines[i].get())) {
+            os << "Moucheron";
+        } else if (dynamic_cast<const Dervish*>(systeme.machines[i].get())) {
+            os << "Dervish";
+        } else {
+            os << "Type inconnu";
         }
         os << std::endl;
     }

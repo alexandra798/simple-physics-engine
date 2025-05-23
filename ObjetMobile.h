@@ -2,6 +2,7 @@
 // ObjetMobile.h
 #pragma once
 #include "Vecteur.h"
+#include <stdexcept>
 
 class ObjetMobile {
 private:
@@ -14,9 +15,10 @@ public:
     ObjetMobile(const Vecteur& param, const Vecteur& deriv);
     virtual ~ObjetMobile() = default; // Destructeur virtuel
     
+
     // Accesseurs
-    const Vecteur& getParametres() const;
-    const Vecteur& getDeriveeParametres() const;
+    Vecteur getParametres() const;
+    Vecteur getDeriveeParametres() const;
     
     // Modificateurs
     void setParametres(const Vecteur& param);
@@ -27,4 +29,18 @@ public:
     
     // Surcharge de l'opérateur << pour l'affichage
     friend std::ostream& operator<<(std::ostream& os, const ObjetMobile& obj);
+
+protected:
+
+    void checkParametres() const {
+        if (parametres.norme() < 0) {
+            throw std::runtime_error("Invalid parametres vector");
+        }
+    }
+    
+    void checkDeriveeParametres() const {
+        if (derivee_parametres.norme() < 0) {
+            throw std::runtime_error("Invalid derivee_parametres vector");
+        }
+    }
 };

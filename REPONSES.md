@@ -87,6 +87,37 @@ Ces opérateurs faciliteraient considérablement l'utilisation de la classe Vect
 
 
 
+### [Question P6.1] Comment avez vous conçu votre classe `Integrateur` ? Expliquez votre conception (attributs, interface, ...).
+
+J'ai conçu la classe `Integrateur` comme une classe abstraite de base qui fournit une interface commune pour implémenter différents algorithmes d'intégration numérique. Les caractéristiques principales sont :
+
+1. **Attributs** : La classe de base n'a pas d'attributs, car un intégrateur n'a pas besoin de maintenir un état interne. Il s'agit simplement d'une implémentation d'algorithme.
+
+2. **Interface** :
+   - Un destructeur virtuel pour assurer une destruction correcte des objets des classes dérivées via des pointeurs de la classe de base
+   - Une méthode virtuelle pure `integre(ObjetMobile& objet, double t, double dt)` qui est la méthode principale que toutes les classes d'intégrateurs doivent implémenter
+   
+3. **Philosophie de conception** :
+   - Utilisation du **patron de conception Stratégie**, permettant de changer d'algorithme d'intégration à l'exécution
+   - Respect du **principe ouvert/fermé**, facilitant l'ajout de nouveaux intégrateurs sans modifier le code existant
+   - Fourniture d'une interface unifiée permettant au reste du système d'interagir avec n'importe quel intégrateur sans connaître les détails spécifiques de l'algorithme
+
+### [Question P6.2] Quelle est la relation entre les classes `Integrateur` et `IntegrateurEulerCromer` ?
+
+La relation entre `Integrateur` et `IntegrateurEulerCromer` est une relation d'**héritage** :
+
+1. `Integrateur` est une classe abstraite de base qui définit l'interface pour tous les intégrateurs
+2. `IntegrateurEulerCromer` est une classe concrète dérivée de `Integrateur` qui implémente l'algorithme d'intégration d'Euler-Cromer
+
+Cette relation illustre le concept de **polymorphisme** en programmation orientée objet :
+- Le système peut manipuler n'importe quel type d'intégrateur via des pointeurs ou des références de type `Integrateur*`
+- À l'exécution, le système peut choisir dynamiquement quel algorithme d'intégration utiliser
+- De nouveaux intégrateurs peuvent être ajoutés au système en créant de nouvelles sous-classes de `Integrateur`, sans avoir à modifier le code qui utilise les intégrateurs
+
+Cette conception permet une grande flexibilité dans le choix des algorithmes d'intégration selon les besoins, par exemple en utilisant la méthode d'Euler simple mais rapide lorsque la précision n'est pas cruciale, ou en passant à l'algorithme de Runge-Kutta lorsqu'une plus grande précision est nécessaire.
+
+
+
 ## [Question P8.1] 
 
 La méthode `dessine_sur()` est, du point de vue de la programmation orientée objet, une méthode virtuelle pure. Elle est déclarée dans la classe abstraite `Dessinable` et doit être implémentée par toutes les classes dérivées. 
@@ -162,4 +193,57 @@ La classe `Systeme` est conçue pour représenter l'ensemble du système physiqu
 - L'intégrateur est un composant interne du système, ce qui permet d'utiliser différentes méthodes d'intégration sans modifier le reste du code.
 
 Cette conception modulaire permet une grande flexibilité et extensibilité du système, tout en maintenant une interface cohérente et facile à utiliser.
+
+## [Question P12.1] Où cela s'intègre-t-il dans votre projet/conception ? Quels changements cela engendre-t-il (ou pas) ?
+
+
+
+1. **Intégration dans l'architecture existante** :
+   - La classe `IntegrateurRungeKutta4` hérite de la classe abstraite `Integrateur`
+   - Elle implémente la méthode virtuelle pure `integre()` avec l'algorithme RK4
+   - Elle utilise la même interface que les autres intégrateurs (comme `IntegrateurEulerCromer`)
+   - Le système (`Systeme`) peut utiliser n'importe quel intégrateur de manière polymorphique
+
+2. **Caractéristiques spécifiques de RK4** :
+   - Utilise 4 évaluations de la fonction d'évolution par pas de temps
+   - Calcule des coefficients intermédiaires (k1, k2, k3, k4) pour améliorer la précision
+   - Applique une moyenne pondérée pour la mise à jour finale
+   - Nécessite plus de calculs que Euler-Cromer mais offre une meilleure précision
+
+3. **Changements engendrés** :
+   - **Architecture** : Aucun changement nécessaire dans l'architecture du projet
+   - **Interface** : Même interface que les autres intégrateurs
+   - **Performance** : 
+     - Coût de calcul plus élevé (4 évaluations vs 1 pour Euler-Cromer)
+     - Meilleure précision, particulièrement pour des pas de temps plus grands
+   - **Utilisation** : 
+     - Peut être utilisé comme alternative à Euler-Cromer
+     - Particulièrement utile pour des systèmes complexes ou des simulations longues
+
+4. **Avantages de cette intégration** :
+   - **Modularité** : L'ajout de RK4 n'affecte pas le reste du code
+   - **Flexibilité** : Le système peut choisir l'intégrateur approprié selon les besoins
+   - **Précision** : RK4 offre une meilleure précision pour des pas de temps plus grands
+   - **Maintenabilité** : L'implémentation est isolée et bien documentée
+
+5. **Exemple d'impact sur la simulation** :
+```cpp
+// Avec Euler-Cromer (moins précis mais plus rapide)
+auto systeme1 = Systeme(std::make_shared<IntegrateurEulerCromer>(0.01));
+
+// Avec Runge-Kutta 4 (plus précis mais plus coûteux)
+auto systeme2 = Systeme(std::make_shared<IntegrateurRungeKutta4>(0.01));
+```
+
+6. **Recommandations d'utilisation** :
+   - Utiliser RK4 pour :
+     - Des simulations nécessitant une haute précision
+     - Des systèmes complexes avec des forces non-linéaires
+     - Des pas de temps plus grands
+   - Utiliser Euler-Cromer pour :
+     - Des simulations en temps réel
+     - Des systèmes simples
+     - Des pas de temps très petits
+
+Cette conception permet donc d'avoir le meilleur des deux mondes : la simplicité et la rapidité d'Euler-Cromer quand c'est suffisant, et la précision de Runge-Kutta 4 quand c'est nécessaire, le tout sans modifier l'architecture du projet.
 

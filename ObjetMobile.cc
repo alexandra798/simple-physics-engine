@@ -1,6 +1,8 @@
 
 // ObjetMobile.cc
 #include "ObjetMobile.h"
+#include "Vecteur.h"
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 
@@ -18,11 +20,11 @@ ObjetMobile::ObjetMobile(const Vecteur& param, const Vecteur& deriv)
 }
 
 // Accesseurs
-const Vecteur& ObjetMobile::getParametres() const {
+Vecteur ObjetMobile::getParametres() const {
     return parametres;
 }
 
-const Vecteur& ObjetMobile::getDeriveeParametres() const {
+Vecteur ObjetMobile::getDeriveeParametres() const {
     return derivee_parametres;
 }
 
